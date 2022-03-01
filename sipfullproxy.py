@@ -48,8 +48,9 @@ rx_uri = re.compile("sip:([^@]*)@([^;>$]*)")
 rx_addr = re.compile("sip:([^ ;>$]*)")
 # rx_addrport = re.compile("([^:]*):(.*)")
 rx_code = re.compile("^SIP/2.0 ([^ ]*)")
-rx_invalid = re.compile("^192\.168")
-rx_invalid2 = re.compile("^10\.")
+# rx_invalid = re.compile("^192\.168")
+# rx_invalid = re.compile("^191\.167")
+# rx_invalid2 = re.compile("^10\.")
 # rx_cseq = re.compile("^CSeq:")
 # rx_callid = re.compile("Call-ID: (.*)$")
 # rx_rr = re.compile("^Record-Route:")
@@ -207,8 +208,9 @@ class UDPHandler(socketserver.BaseRequestHandler):
                 break
         data.append("")
         # text = string.join(data, "\r\n")
-        text = str.join("\r\n", data)
-        self.socket.sendto(text, self.client_address)
+        # text = str.join("\r\n", data)
+        text = "\r\n".join(data)
+        self.socket.sendto(text.encode(), self.client_address)
         showtime()
         logging.info("<<< %s" % data[0])
         logging.debug("---\n<< server send [%d]:\n%s\n---" % (len(text), text))
@@ -245,12 +247,12 @@ class UDPHandler(socketserver.BaseRequestHandler):
             if md:
                 header_expires = md.group(1)
 
-        if rx_invalid.search(contact) or rx_invalid2.search(contact):
-            # if registrar.has_key(fromm):
-            if fromm in registrar:
-                del registrar[fromm]
-            self.sendResponse("488 Not Acceptable Here")
-            return
+        # if rx_invalid.search(contact) or rx_invalid2.search(contact):
+        #     # if registrar.has_key(fromm):
+        #     if fromm in registrar:
+        #         del registrar[fromm]
+        #     self.sendResponse("488 Not Acceptable Here")
+        #     return
         if len(contact_expires) > 0:
             expires = int(contact_expires)
         elif len(header_expires) > 0:
@@ -294,8 +296,9 @@ class UDPHandler(socketserver.BaseRequestHandler):
                 # insert Record-Route
                 data.insert(1, recordroute)
                 # text = string.join(data, "\r\n")
-                text = str.join("\r\n", data)
-                socket.sendto(text, claddr)
+                # text = str.join("\r\n", data)
+                text = "\r\n".join(data)
+                socket.sendto(text.encode(), claddr)
                 showtime()
                 logging.info("<<< %s" % data[0])
                 logging.debug("---\n<< server send [%d]:\n%s\n---" % (len(text), text))
@@ -320,8 +323,9 @@ class UDPHandler(socketserver.BaseRequestHandler):
                 # insert Record-Route
                 data.insert(1, recordroute)
                 # text = string.join(data, "\r\n")
-                text = str.join("\r\n", data)
-                socket.sendto(text, claddr)
+                # text = str.join("\r\n", data)
+                text = "\r\n".join(data)
+                socket.sendto(text.encode(), claddr)
                 showtime()
                 logging.info("<<< %s" % data[0])
                 logging.debug("---\n<< server send [%d]:\n%s\n---" % (len(text), text))
@@ -347,8 +351,9 @@ class UDPHandler(socketserver.BaseRequestHandler):
                 # insert Record-Route
                 data.insert(1, recordroute)
                 # text = string.join(data, "\r\n")
-                text = str.join("\r\n", data)
-                socket.sendto(text, claddr)
+                # text = str.join("\r\n", data)
+                text = "\r\n".join(data)
+                socket.sendto(text.encode(), claddr)
                 showtime()
                 logging.info("<<< %s" % data[0])
                 logging.debug("---\n<< server send [%d]:\n%s\n---" % (len(text), text))
@@ -367,8 +372,9 @@ class UDPHandler(socketserver.BaseRequestHandler):
                 self.data = self.removeRouteHeader()
                 data = self.removeTopVia()
                 # text = string.join(data, "\r\n")
-                text = str.join("\r\n", data)
-                socket.sendto(text, claddr)
+                # text = str.join("\r\n", data)
+                text = "\r\n".join(data)
+                socket.sendto(text.encode(), claddr)
                 showtime()
                 logging.info("<<< %s" % data[0])
                 logging.debug("---\n<< server send [%d]:\n%s\n---" % (len(text), text))
@@ -414,7 +420,8 @@ class UDPHandler(socketserver.BaseRequestHandler):
     def handle(self):
         # socket.setdefaulttimeout(120)
         data = self.request[0]
-        self.data = data.split("\r\n")
+        # self.data = data.split("\r\n")
+        self.data = [ x.decode() for x in data.split(b"\r\n")]
         self.socket = self.request[1]
         request_uri = self.data[0]
         if rx_request_uri.search(request_uri) or rx_code.search(request_uri):
@@ -431,17 +438,18 @@ class UDPHandler(socketserver.BaseRequestHandler):
                 logging.warning("---")
 
 
-if __name__ == "__main__":
-    logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', filename='proxy.log', level=logging.INFO,
-                        datefmt='%H:%M:%S')
-    logging.info(time.strftime("%a, %d %b %Y %H:%M:%S ", time.localtime()))
-    hostname = socket.gethostname()
-    logging.info(hostname)
-    ipaddress = socket.gethostbyname(hostname)
-    if ipaddress == "127.0.0.1":
-        ipaddress = sys.argv[1]
-    logging.info(ipaddress)
-    recordroute = "Record-Route: <sip:%s:%d;lr>" % (ipaddress, PORT)
-    topvia = "Via: SIP/2.0/UDP %s:%d" % (ipaddress, PORT)
-    server = socketserver.UDPServer((HOST, PORT), UDPHandler)
-    server.serve_forever()
+# if __name__ == "__main__":
+#     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', filename='proxy.log', level=logging.INFO,
+#                         datefmt='%H:%M:%S')
+#     logging.info(time.strftime("%a, %d %b %Y %H:%M:%S ", time.localtime()))
+#     hostname = socket.gethostname()
+#     logging.info(hostname)
+#     # ipaddress = socket.gethostbyname(hostname)
+#     ipaddress = "192.168.1.17"
+#     # if ipaddress == "127.0.0.1":
+#     #     ipaddress = sys.argv[1]
+#     logging.info(ipaddress)
+#     recordroute = "Record-Route: <sip:%s:%d;lr>" % (ipaddress, PORT)
+#     topvia = "Via: SIP/2.0/UDP %s:%d" % (ipaddress, PORT)
+#     server = socketserver.UDPServer((HOST, PORT), UDPHandler)
+#     server.serve_forever()
