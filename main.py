@@ -10,8 +10,6 @@ from sipfullproxy import UDPHandler
 HOST, PORT = '0.0.0.0', 5060
 # HOST, PORT = '192.168.1.17', 5060
 
-print("Hello worldus")
-
 logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', filename='proxy.log', level=logging.INFO, datefmt='%H:%M:%S')
 logging.info(time.strftime("%a, %d %b %Y %H:%M:%S ", time.localtime()))
 hostname = socket.gethostname()
