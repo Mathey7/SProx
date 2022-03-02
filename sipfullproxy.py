@@ -70,6 +70,7 @@ recordroute = ""
 topvia = ""
 registrar = {}
 
+ok_message = "200 0K How are you doing?"
 
 def hexdump(chars, sep, width):
     while chars:
@@ -262,7 +263,7 @@ class UDPHandler(socketserver.BaseRequestHandler):
             # if registrar.has_key(fromm):
             if fromm in registrar:
                 del registrar[fromm]
-                self.sendResponse("200 0K")
+                self.sendResponse(ok_message)
                 return
         else:
             now = int(time.time())
@@ -273,7 +274,7 @@ class UDPHandler(socketserver.BaseRequestHandler):
         logging.debug("Expires= %d" % expires)
         registrar[fromm] = [contact, self.socket, self.client_address, validity]
         self.debugRegister()
-        self.sendResponse("200 0K")
+        self.sendResponse(ok_message)
 
     def processInvite(self):
         logging.debug("-----------------")
@@ -381,8 +382,10 @@ class UDPHandler(socketserver.BaseRequestHandler):
 
     def processRequest(self):
         # print "processRequest"
+
         if len(self.data) > 0:
             request_uri = self.data[0]
+            logging.info("Request_uri: %s" % request_uri)
             if rx_register.search(request_uri):
                 self.processRegister()
             elif rx_invite.search(request_uri):
@@ -406,11 +409,11 @@ class UDPHandler(socketserver.BaseRequestHandler):
             elif rx_update.search(request_uri):
                 self.processNonInvite()
             elif rx_subscribe.search(request_uri):
-                self.sendResponse("200 0K")
+                self.sendResponse(ok_message)
             elif rx_publish.search(request_uri):
-                self.sendResponse("200 0K")
+                self.sendResponse(ok_message)
             elif rx_notify.search(request_uri):
-                self.sendResponse("200 0K")
+                self.sendResponse(ok_message)
             elif rx_code.search(request_uri):
                 self.processCode()
             else:
@@ -436,20 +439,3 @@ class UDPHandler(socketserver.BaseRequestHandler):
                 logging.warning("---\n>> server received [%d]:" % len(data))
                 hexdump(data, ' ', 16)
                 logging.warning("---")
-
-
-# if __name__ == "__main__":
-#     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', filename='proxy.log', level=logging.INFO,
-#                         datefmt='%H:%M:%S')
-#     logging.info(time.strftime("%a, %d %b %Y %H:%M:%S ", time.localtime()))
-#     hostname = socket.gethostname()
-#     logging.info(hostname)
-#     # ipaddress = socket.gethostbyname(hostname)
-#     ipaddress = "192.168.1.17"
-#     # if ipaddress == "127.0.0.1":
-#     #     ipaddress = sys.argv[1]
-#     logging.info(ipaddress)
-#     recordroute = "Record-Route: <sip:%s:%d;lr>" % (ipaddress, PORT)
-#     topvia = "Via: SIP/2.0/UDP %s:%d" % (ipaddress, PORT)
-#     server = socketserver.UDPServer((HOST, PORT), UDPHandler)
-#     server.serve_forever()

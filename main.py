@@ -4,6 +4,7 @@ import logging
 import time
 import sys
 
+import sipfullproxy
 from sipfullproxy import UDPHandler
 
 HOST, PORT = '0.0.0.0', 5060
@@ -20,8 +21,9 @@ ipaddress = socket.gethostbyname(hostname)
 # ipaddress = sys.argv[1]
 # ipaddress = "192.168.1.17"
 logging.info(ipaddress)
-recordroute = "Record-Route: <sip:%s:%d;lr>" % (ipaddress, PORT)
-topvia = "Via: SIP/2.0/UDP %s:%d" % (ipaddress, PORT)
+
+sipfullproxy.recordroute = "Record-Route: <sip:%s:%d;lr>" % (ipaddress, PORT)
+sipfullproxy.topvia = "Via: SIP/2.0/UDP %s:%d" % (ipaddress, PORT)
 
 server = socketserver.UDPServer((HOST, PORT), UDPHandler)
 server.serve_forever()
